@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { complianceOutputSchema } from '@leadpulse/shared';
+import { campaignWizardInputSchema, complianceOutputSchema } from '@leadpulse/shared';
 import { requireAuth } from '../auth/clerk.js';
 import { requireClientAccess } from '../middleware/roles.js';
 import { asyncHandler, currentAuth } from './helpers.js';
@@ -8,6 +8,7 @@ import {
   getOAuthStartUrl,
   listAdAccounts,
   listFacebookPages,
+  listInstagramAccounts,
   publishPausedCampaign,
 } from '../services/metaService.js';
 import { getDoc, listDocs } from '../services/firestore.js';
@@ -44,6 +45,13 @@ metaRouter.get(
 );
 
 metaRouter.get(
+  '/meta/instagram-accounts',
+  asyncHandler(async (_req, res) => {
+    res.json({ instagramAccounts: await listInstagramAccounts() });
+  }),
+);
+
+metaRouter.get(
   '/meta/campaigns',
   asyncHandler(async (_req, res) => {
     res.json({ campaigns: await listDocs('campaigns', 100) });
@@ -64,10 +72,12 @@ metaRouter.post(
   asyncHandler(async (req, res) => {
     const auth = currentAuth(req);
     const draft = await getDoc<Record<string, unknown>>('campaignDrafts', req.body.campaignDraftId);
+
     if (!draft) {
       res.status(404).json({ error: 'Campaign draft not found.' });
       return;
     }
+
     const compliance = complianceOutputSchema.safeParse(draft.compliance ?? req.body.compliance);
     if (!compliance.success || !compliance.data.approvedForDrafting) {
       res.status(409).json({
@@ -76,13 +86,33 @@ metaRouter.post(
       });
       return;
     }
+
+    const draftInput = campaignWizardInputSchema.safeParse(draft.input);
+    const metaPublisherPlatforms = draftInput.success
+      ? draftInput.data.metaPublisherPlatforms
+      : (['facebook', 'instagram'] as Array<'facebook' | 'instagram'>);
+
     const result = await publishPausedCampaign({
       organizationId: auth.organizationId,
       actorUserId: auth.id,
       clientId: String(req.body.clientId ?? draft.clientId ?? 'client_demo'),
       campaignDraftId: String(req.body.campaignDraftId),
+      adAccountId: req.body.adAccountId ? String(req.body.adAccountId) : undefined,
+      pageId: req.body.pageId ? String(req.body.pageId) : undefined,
+      instagramActorId: req.body.instagramActorId ? String(req.body.instagramActorId) : undefined,
+      metaPublisherPlatforms,
     });
-    res.status(201).json({ result, safety: 'All Meta entities were created as PAUSED.' });
+
+    res.status(201).json({
+      result,
+      safety: 'All Meta entities were created as PAUSED.',
+      metaDestination: {
+        adAccountId: req.body.adAccountId,
+        pageId: req.body.pageId,
+        instagramActorId: req.body.instagramActorId,
+        publisherPlatforms: metaPublisherPlatforms,
+      },
+    });
   }),
 );
 

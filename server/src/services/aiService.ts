@@ -55,17 +55,40 @@ function currentPeriod(): string {
   return new Date().toISOString().slice(0, 7);
 }
 
+function shouldUseMock(): boolean {
+  return env.AI_FORCE_MOCK || !env.OPENAI_API_KEY || env.OPENAI_API_KEY.trim().length < 20;
+}
+
+function parseJsonObject(content: string): unknown {
+  const cleaned = content
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/\s*```$/i, '');
+
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error('OpenAI did not return a JSON object.');
+  }
+
+  return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+}
+
 async function enforceUsageLimit(organizationId: string, userId: string): Promise<void> {
   const period = currentPeriod();
   const id = `${organizationId}_${userId}_${period}`;
   const current = await getDoc<{ aiGenerationsUsed: number; aiGenerationsLimit: number }>('usageLimits', id);
   const used = current?.aiGenerationsUsed ?? 0;
   const limit = current?.aiGenerationsLimit ?? env.AI_MONTHLY_LIMIT_PER_USER;
+
   if (used >= limit) {
     const error = new Error('Monthly AI generation limit reached.');
     (error as Error & { status?: number }).status = 429;
     throw error;
   }
+
   await setDoc('usageLimits', id, {
     id,
     organizationId,
@@ -78,18 +101,43 @@ async function enforceUsageLimit(organizationId: string, userId: string): Promis
 }
 
 async function generateWithOpenAI<T>(promptType: PromptType, input: CampaignWizardInput, schema: z.ZodType<T>): Promise<T> {
-  if (!env.OPENAI_API_KEY) return schema.parse(configs[promptType].mock(input));
-  const client = new OpenAI({ apiKey: env.OPENAI_API_KEY });
-  const response = await client.chat.completions.create({
-    model: env.OPENAI_MODEL_DEFAULT,
-    response_format: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: masterSystemPrompt },
-      { role: 'user', content: configs[promptType].prompt(input) },
-    ],
-  });
-  const content = response.choices[0]?.message.content ?? '{}';
-  return schema.parse(JSON.parse(content));
+  const config = configs[promptType];
+
+  if (shouldUseMock()) {
+    return schema.parse(config.mock(input));
+  }
+
+  try {
+    const client = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+    const response = await client.chat.completions.create({
+      model: env.OPENAI_MODEL_DEFAULT,
+      temperature: 0.4,
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'system',
+          content: `${masterSystemPrompt}\n\nReturn only valid JSON. Do not use markdown. Do not wrap the response in code fences.`,
+        },
+        { role: 'user', content: config.prompt(input) },
+      ],
+    });
+
+    const content = response.choices[0]?.message.content ?? '{}';
+    const parsedJson = parseJsonObject(content);
+    const validated = schema.safeParse(parsedJson);
+
+    if (!validated.success) {
+      console.warn(`[LeadPulse AI] OpenAI output failed validation for ${promptType}; falling back to mock output.`, validated.error.flatten());
+      if (env.NODE_ENV !== 'production') return schema.parse(config.mock(input));
+      throw validated.error;
+    }
+
+    return validated.data;
+  } catch (error) {
+    console.warn(`[LeadPulse AI] AI generation failed for ${promptType}; falling back to mock output in development.`, error);
+    if (env.NODE_ENV !== 'production') return schema.parse(config.mock(input));
+    throw error;
+  }
 }
 
 export async function runAiGeneration<T>(args: {
@@ -106,9 +154,11 @@ export async function runAiGeneration<T>(args: {
     (doc) => doc.inputHash === inputHash,
     1,
   );
+
   if (cached[0]) {
     return { output: config.schema.parse(cached[0].output), cached: true, generationId: cached[0].id };
   }
+
   await enforceUsageLimit(args.organizationId, args.userId);
   const output = await generateWithOpenAI(args.promptType, parsedInput, config.schema);
   const generation = aiGenerationSchema.parse({
@@ -117,11 +167,12 @@ export async function runAiGeneration<T>(args: {
     userId: args.userId,
     promptType: args.promptType,
     inputHash,
-    model: env.OPENAI_MODEL_DEFAULT,
+    model: shouldUseMock() ? 'mock' : env.OPENAI_MODEL_DEFAULT,
     output,
     cached: false,
     createdAt: nowIso(),
   });
+
   await setDoc('aiGenerations', generation.id, generation);
   await audit({
     organizationId: args.organizationId,
@@ -129,7 +180,8 @@ export async function runAiGeneration<T>(args: {
     action: 'ai_generation',
     targetType: 'aiGeneration',
     targetId: generation.id,
-    metadata: { promptType: args.promptType, model: env.OPENAI_MODEL_DEFAULT },
+    metadata: { promptType: args.promptType, model: shouldUseMock() ? 'mock' : env.OPENAI_MODEL_DEFAULT },
   });
+
   return { output, cached: false, generationId: generation.id };
 }

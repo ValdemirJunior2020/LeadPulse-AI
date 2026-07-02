@@ -84,6 +84,9 @@ export const campaignTypeSchema = z.enum([
 ]);
 export type CampaignType = z.infer<typeof campaignTypeSchema>;
 
+export const metaPublisherPlatformSchema = z.enum(['facebook', 'instagram']);
+export type MetaPublisherPlatform = z.infer<typeof metaPublisherPlatformSchema>;
+
 export const campaignWizardInputSchema = z.object({
   campaignType: campaignTypeSchema,
   businessName: z.string().min(1),
@@ -96,6 +99,7 @@ export const campaignWizardInputSchema = z.object({
   landingPage: z.string().url(),
   phoneOrTrackingNumber: z.string().min(3),
   goal: z.string().min(1),
+  metaPublisherPlatforms: z.array(metaPublisherPlatformSchema).min(1).default(['facebook', 'instagram']),
   tone: z.string().min(1),
 });
 export type CampaignWizardInput = z.infer<typeof campaignWizardInputSchema>;

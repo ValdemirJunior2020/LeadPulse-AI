@@ -39,7 +39,7 @@ textarea {
 }
 
 .animate-leadpulse-marquee {
-  animation: leadpulse-marquee 28s linear infinite;
+  animation: leadpulse-marquee 60s linear infinite;
 }
 
 .animate-leadpulse-marquee:hover {

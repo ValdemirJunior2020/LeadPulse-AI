@@ -17,6 +17,10 @@ const envSchema = z.object({
   OPENAI_MODEL_DEFAULT: z.string().default('gpt-4o-mini'),
   OPENAI_MODEL_UPGRADE: z.string().default('gpt-4o'),
   AI_MONTHLY_LIMIT_PER_USER: z.coerce.number().int().positive().default(100),
+  AI_FORCE_MOCK: z
+    .string()
+    .default('false')
+    .transform((value) => value === 'true'),
   META_APP_ID: z.string().optional(),
   META_APP_SECRET: z.string().optional(),
   META_REDIRECT_URI: z.string().optional(),
