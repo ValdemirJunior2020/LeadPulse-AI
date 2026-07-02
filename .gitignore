@@ -59,3 +59,8 @@ Thumbs.db
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+# Local environment files
+.env
+.env.local
+server/.env.local
+client/.env.local
