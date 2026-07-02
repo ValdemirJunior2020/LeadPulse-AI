@@ -1,0 +1,34 @@
+{
+  "name": "leadpulse-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LeadPulse AI monorepo: AI campaign generation, Meta paused publishing, CallRail metadata tracking.",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @leadpulse/server\" \"npm run dev -w @leadpulse/client\"",
+    "build": "npm run build -w @leadpulse/shared && npm run build -w @leadpulse/server && npm run build -w @leadpulse/client",
+    "build:client": "npm run build -w @leadpulse/client",
+    "build:server": "npm run build -w @leadpulse/server",
+    "typecheck": "npm run build -w @leadpulse/shared && npm run typecheck -w @leadpulse/server && npm run typecheck -w @leadpulse/client",
+    "lint": "npm run lint -w @leadpulse/shared && npm run lint -w @leadpulse/server && npm run lint -w @leadpulse/client",
+    "format": "prettier --write .",
+    "test": "npm run test -w @leadpulse/server"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.20.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "type": "module"
+}

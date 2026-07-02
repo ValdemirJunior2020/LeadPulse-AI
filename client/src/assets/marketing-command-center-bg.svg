@@ -1,0 +1,26 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#0B1220"/>
+  <g opacity="0.18" stroke="#2563EB" stroke-width="1">
+    <path d="M0 90H1440M0 180H1440M0 270H1440M0 360H1440M0 450H1440M0 540H1440M0 630H1440M0 720H1440M0 810H1440"/>
+    <path d="M90 0V900M180 0V900M270 0V900M360 0V900M450 0V900M540 0V900M630 0V900M720 0V900M810 0V900M900 0V900M990 0V900M1080 0V900M1170 0V900M1260 0V900M1350 0V900"/>
+  </g>
+  <path d="M120 680C310 510 423 585 570 430C740 250 910 360 1080 190C1190 80 1300 100 1370 45" stroke="#22C55E" stroke-width="3" stroke-opacity=".5"/>
+  <path d="M160 260C330 320 425 205 598 288C730 351 810 566 1030 515C1194 477 1262 385 1368 420" stroke="#2563EB" stroke-width="3" stroke-opacity=".55"/>
+  <g filter="url(#glow)">
+    <circle cx="120" cy="680" r="8" fill="#22C55E"/>
+    <circle cx="570" cy="430" r="8" fill="#22C55E"/>
+    <circle cx="1080" cy="190" r="8" fill="#22C55E"/>
+    <circle cx="160" cy="260" r="8" fill="#2563EB"/>
+    <circle cx="598" cy="288" r="8" fill="#2563EB"/>
+    <circle cx="1030" cy="515" r="8" fill="#2563EB"/>
+    <circle cx="1220" cy="150" r="10" fill="#F59E0B"/>
+  </g>
+  <circle cx="1120" cy="160" r="260" fill="#2563EB" opacity=".14"/>
+  <circle cx="260" cy="700" r="220" fill="#22C55E" opacity=".09"/>
+  <defs>
+    <filter id="glow" x="0" y="0" width="1440" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+</svg>

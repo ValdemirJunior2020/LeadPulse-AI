@@ -1,0 +1,8 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LeadPulse AI logo">
+  <rect width="256" height="256" rx="56" fill="#0B1220"/>
+  <path d="M71 61c-11 8-18 22-17 38 3 49 44 90 93 103 17 4 34 0 46-11l8-8c5-5 5-13 0-18l-24-24c-5-5-12-5-17-1l-11 9c-4 3-9 4-14 2-20-9-38-27-48-47-2-5-2-10 2-14l9-11c4-5 4-12-1-17L73 60c-1 0-1 0-2 1Z" fill="#2563EB"/>
+  <path d="M112 174h19v-44h-19v44Zm31 0h19v-66h-19v66Zm31 0h19V84h-19v90Z" fill="#22C55E"/>
+  <path d="M174 67l25-10v35l-25-9V67Z" fill="#F59E0B"/>
+  <path d="M202 57l10-9M207 77h15M202 92l10 9" stroke="#F59E0B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M68 192c39 27 90 28 129 0" stroke="white" stroke-opacity=".22" stroke-width="8" stroke-linecap="round"/>
+</svg>

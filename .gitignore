@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager files
+.pnpm-store/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Optional: lock files
+# Uncomment if your team does not commit lock files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

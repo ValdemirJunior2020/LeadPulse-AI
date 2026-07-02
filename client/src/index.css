@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0b1220;
+  background: #f8fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.bg-command-center {
+  background-image: url('/src/assets/marketing-command-center-bg.svg');
+  background-size: cover;
+  background-position: center;
+}
+@keyframes leadpulse-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-leadpulse-marquee {
+  animation: leadpulse-marquee 28s linear infinite;
+}
+
+.animate-leadpulse-marquee:hover {
+  animation-play-state: paused;
+}
